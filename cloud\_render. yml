@@ -1,0 +1,38 @@
+name: Cloud Render Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-video:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg texlive texlive-latex-extra texlive-fonts-extra texlive-latex-recommended texlive-science tipa libcairo2-dev libpango1.0-dev
+
+      - name: Install Python Libraries
+        run: |
+          pip install manim sympy arabic-reshaper python-bidi
+
+      - name: Render Math Animation
+        run: |
+          manim -pqh pipeline_animation.py AutomatedPipelineVideo
+
+      - name: Upload Video Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Final_Math_Video
+          path: media/videos/pipeline_animation/1080p60/AutomatedPipelineVideo.mp4
